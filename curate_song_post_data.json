@@ -1,0 +1,22 @@
+{
+  "variables": {
+    "input": {
+      "curations": [
+        {
+          "contextUri": "spotify:collection:tracks",
+          "curationType": "UNCURATE"
+        }
+      ],
+      "itemUris": [
+        "spotify:track:6GuSQ58eE762mYqXivcH7a"
+      ]
+    }
+  },
+  "operationName": "applyCurations",
+  "extensions": {
+    "persistedQuery": {
+      "version": 1,
+      "sha256Hash": "05b739a3a73091c213385233b9d3ed8a857c2ca29d2eebadb3d04ed12e288697"
+    }
+  }
+}
