@@ -106,8 +106,9 @@ if __name__ == '__main__':
 
         playlists = fetch_playlists(session, limit=200)
         if len(playlists) >= 2:
-            p_from = playlists[0]
-            p_to = playlists[2]
+            p_from = random.choice(playlists)
+            playlists.remove(p_from)
+            p_to = random.choice(playlists)
 
             tracks = fetch_songs(session, p_from, limit=100)
 
