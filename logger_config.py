@@ -1,8 +1,6 @@
 import logging
 from logging import Logger
 
-from mdurl import _format
-
 RESET_LOG = True
 
 LEVEL = logging.DEBUG
