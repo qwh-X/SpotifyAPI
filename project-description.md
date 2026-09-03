@@ -1,6 +1,13 @@
 ## dev
 
+TODO: change `login.py` to use redirection? ```login.py > auth_state.json```
+
 TODO: add support for adding songs i guess
+
+TODO: i should add support for episodes probably
+
+TODO: also make code more resistant against spotify updates ( hashes updates )
+
 NOTE: could be using `fetchPlaylistContents` instead of `fetchPlaylist`
 
 ## files
