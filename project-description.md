@@ -1,6 +1,7 @@
 ## dev
 
-add support for adding songs i guess
+TODO: add support for adding songs i guess
+NOTE: could be using `fetchPlaylistContents` instead of `fetchPlaylist`
 
 ## files
 
