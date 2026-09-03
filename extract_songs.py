@@ -4,21 +4,22 @@ from logger_config import get_logger
 from extract_tokens import is_valid_headers
 from spotify_session import SpotifySession
 from models import Song, Playlist
+from json_util import access_by_path, set_by_path
 
 PATHFINDER_URL = "https://api-partner.spotify.com/pathfinder/v2/query"
 
 logger = get_logger(__name__)
 
 with open('fetch_songs_post_data.json') as f:
-    # placeholders: limit, offset
+    # placeholders: limit, offset, uri
     fetch_songs_post_data = json.load(f)
 
 def fetch_songs(session: SpotifySession, playlist: Playlist, limit=50, offset=0):
     assert is_valid_headers(session)
-    fetch_songs_post_data['variables']['limit'] = limit
-    fetch_songs_post_data['variables']['offset'] = offset
+    set_by_path(fetch_songs_post_data, 'variables.limit', limit)
+    set_by_path(fetch_songs_post_data, 'variables.offset', offset)
     assert playlist.uri
-    fetch_songs_post_data['variables']['uri'] = playlist.uri
+    set_by_path(fetch_songs_post_data, 'variables.uri', playlist.uri)
 
     response = session.page.request.post(
             PATHFINDER_URL,
@@ -41,10 +42,10 @@ def fetch_songs(session: SpotifySession, playlist: Playlist, limit=50, offset=0)
             json.dump(data, f, indent=2)
         raise ValueError('Wrong root structure')
 
-    items = data['data']['playlistV2']['content']['items']
+    items = access_by_path(data, 'data.playlistV2.content.items')
     for item in items:
         try:
-            data = item['itemV2']['data']
+            data = access_by_path(item, 'itemV2.data')
             song = Song.from_api_json(data)
             songs.append(song)
         except Exception as e:
