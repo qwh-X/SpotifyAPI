@@ -1,20 +1,24 @@
 import json
+from typing import Iterable
 
-from extract_tokens import get_liked_uri
+from models import Playlist
+from spotify_session import SpotifySession
+from extract_tokens import is_valid_headers
 
-v2_url = "https://api-partner.spotify.com/pathfinder/v2/query"
-pseudo_liked_uri = "spotify:collection:tracks"
+PATHFINDER_URL = "https://api-partner.spotify.com/pathfinder/v2/query"
+
 
 with open('fetch_playlists_post_data.json') as f:
     # placeholders: limit, offset
     fetch_playlists_post_data = json.load(f)
 
-def fetch_playlists(api_headers, page, limit=50, offset=0):
+def fetch_playlists(session: SpotifySession, limit=50, offset=0) -> Iterable[Playlist]:
     fetch_playlists_post_data['variables']['limit'] = limit
     fetch_playlists_post_data['variables']['offset'] = offset
-    response = page.request.post(
-            v2_url,
-            headers=api_headers,
+    assert is_valid_headers(session)
+    response = session.page.request.post(
+            PATHFINDER_URL,
+            headers=session.api_headers,
             data = fetch_playlists_post_data
             )
     if response.status != 200:
@@ -22,36 +26,28 @@ def fetch_playlists(api_headers, page, limit=50, offset=0):
 
     playlists = []
 
-    liked_uri = get_liked_uri(page)
-    assert liked_uri is not None
+    saved_uri = session.saved_uri
+    assert saved_uri
 
     data = response.json()
 
     # print(data)
-    # with open('playlist-fetch-res.json', 'w') as f:
-    #     json.dump(data, f, indent=2)
+    with open('playlist-fetch-res.json', 'w') as f:
+        json.dump(data, f, indent=2)
 
     items = data['data']['me']['libraryV3']['items']
 
     for item in items:
-        data = item['item']['data']
-        uri = data['uri'] if data['uri'] != pseudo_liked_uri else liked_uri
-        length = data.get('count')
-        name = data['name']
-
-        playlists.append({
-            'uri': uri,
-            'length': length,
-            'name': name,
-            })
+        playlist = Playlist.from_api_json(item, saved_uri)
+        playlists.append(playlist)
 
     return playlists
 
 if __name__ == '__main__':
     from playwright.sync_api import sync_playwright
-
     from playwright_stealth import Stealth
-    from extract_tokens import get_headers
+
+    from extract_tokens import init_session
 
     with Stealth().use_sync(sync_playwright()) as p:
         browser = p.chromium.launch(headless=False)
@@ -60,10 +56,13 @@ if __name__ == '__main__':
                 )
         page = context.new_page()
 
-        api_headers = get_headers(page)
-        playlists = fetch_playlists(api_headers, page, limit=200)
+        session = SpotifySession(page)
+
+        init_session(session)
+
+        playlists = fetch_playlists(session, limit=200)
 
         for playlist in playlists:
-            print(f"{playlist['name']:<30} {playlist['uri']:<42} {playlist['length']}")
+            print(playlist)
 
 

@@ -1,25 +1,24 @@
 ## dev
 
-currently refactoring extract_tokens for modularity
+add support for adding songs i guess
 
 ## files
 
 ### extract_tokens
 
-use the api to extract auth and client token
-those are necessary for making any further requests
-
-- refactor: make headers a struct/class?
+provides init session and auth header validation(kinda)
 
 ### extract_playlists
 
-extract playlists.
+extracts playlists from a session
+- params: limit, offset
 
 ### extract_songs
 
-- defines Album Song Artist
-
 extract songs from a playlist ( episodes are not supported )
+- params: playlist: .uri, limit, offset
+- add passing playlist by uri?
 
-- refactor: add fields to classes?
-- move classes out
+### models
+
+contains class definitions for Album Song Artist Playlist[...]
