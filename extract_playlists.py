@@ -1,6 +1,7 @@
 import json
 from typing import Iterable
 
+from json_util import access_by_path, set_by_path
 from models import Playlist
 from spotify_session import SpotifySession
 from extract_tokens import is_valid_headers
@@ -14,8 +15,8 @@ with open('fetch_playlists_post_data.json') as f:
 
 def fetch_playlists(session: SpotifySession, limit=50, offset=0) -> Iterable[Playlist]:
     assert is_valid_headers(session)
-    fetch_playlists_post_data['variables']['limit'] = limit
-    fetch_playlists_post_data['variables']['offset'] = offset
+    set_by_path(fetch_playlists_post_data, 'variables.limit', limit)
+    set_by_path(fetch_playlists_post_data, 'variables.offset', offset)
 
     response = session.page.request.post(
             PATHFINDER_URL,
@@ -33,10 +34,10 @@ def fetch_playlists(session: SpotifySession, limit=50, offset=0) -> Iterable[Pla
     data = response.json()
 
     # print(data)
-    with open('playlist-fetch-res.json', 'w') as f:
-        json.dump(data, f, indent=2)
+    # with open('playlist-fetch-res.json', 'w') as f:
+    #     json.dump(data, f, indent=2)
 
-    items = data['data']['me']['libraryV3']['items']
+    items = access_by_path(data, 'data.me.libraryV3.items')
 
     for item in items:
         playlist = Playlist.from_api_json(item, saved_uri)
