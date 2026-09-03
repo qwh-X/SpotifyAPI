@@ -14,14 +14,13 @@ with open('fetch_songs_post_data.json') as f:
     fetch_songs_post_data = json.load(f)
 
 def fetch_songs(session: SpotifySession, playlist: Playlist, limit=50, offset=0):
+    assert is_valid_headers(session)
     fetch_songs_post_data['variables']['limit'] = limit
     fetch_songs_post_data['variables']['offset'] = offset
     assert playlist.uri
     fetch_songs_post_data['variables']['uri'] = playlist.uri
 
-    assert is_valid_headers(session)
-
-    response = page.request.post(
+    response = session.page.request.post(
             PATHFINDER_URL,
             headers=session.api_headers,
             data = fetch_songs_post_data

@@ -13,9 +13,10 @@ with open('fetch_playlists_post_data.json') as f:
     fetch_playlists_post_data = json.load(f)
 
 def fetch_playlists(session: SpotifySession, limit=50, offset=0) -> Iterable[Playlist]:
+    assert is_valid_headers(session)
     fetch_playlists_post_data['variables']['limit'] = limit
     fetch_playlists_post_data['variables']['offset'] = offset
-    assert is_valid_headers(session)
+
     response = session.page.request.post(
             PATHFINDER_URL,
             headers=session.api_headers,
